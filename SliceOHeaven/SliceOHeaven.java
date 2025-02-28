@@ -13,6 +13,65 @@ public class SliceOHeaven {
     private List<String> drinks;
     private int orderID;
     private double orderTotal;
+    private static final String DEF_ORDER_ID = "DEF-SOH-099";
+    private static final String DEF_PIZZA_INGREDIENTS = "Mozzarella Cheese";
+    private static final double DEF_ORDER_TOTAL = 15.00;
+
+    public Pizzeria() {
+        this.orderID = DEF_ORDER_ID;
+        this.pizzaIngredients = DEF_PIZZA_INGREDIENTS;
+        this.orderTotal = DEF_ORDER_TOTAL;
+        this.sides = "Garlic Bread";
+        this.drinks = "Coke";
+    }
+
+    public Pizzeria(String orderID, String pizzaIngredients, double orderTotal) {
+        this.orderID = orderID;
+        this.pizzaIngredients = pizzaIngredients;
+        this.orderTotal = orderTotal;
+        this.sides = "Garlic Bread";
+        this.drinks = "Coke";
+    }
+
+    public String getOrderID() {
+        return orderID;
+    }
+
+    public void setOrderID(String orderID) {
+        this.orderID = orderID;
+    }
+
+    public double getOrderTotal() {
+        return orderTotal;
+    }
+
+    public void setOrderTotal(double orderTotal) {
+        this.orderTotal = orderTotal;
+    }
+
+    public String getPizzaIngredients() {
+        return pizzaIngredients;
+    }
+
+    public void setPizzaIngredients(String pizzaIngredients) {
+        this.pizzaIngredients = pizzaIngredients;
+    }
+
+    public String getSides() {
+        return sides;
+    }
+
+    public void setSides(String sides) {
+        this.sides = sides;
+    }
+
+    public String getDrinks() {
+        return drinks;
+    }
+
+    public void setDrinks(String drinks) {
+        this.drinks = drinks;
+    }
 
     public SliceOHeaven(String storeName, String storeAddress, String storeEmail, String storePhone, List<String> storeMenu) {
         this.storeName = storeName;
@@ -34,15 +93,18 @@ public class SliceOHeaven {
         return "Making pizza with ingredients: " + String.join(", ", pizzaIngredients);
     }
 
-    public String printReceipt() {
-        return "Order ID: " + orderID + "\n" +
-               "Pizza Ingredients: " + String.join(", ", pizzaIngredients) + "\n" +
-               "Sides: " + String.join(", ", sides) + "\n" +
-               "Drinks: " + String.join(", ", drinks) + "\n" +
-               "Order Total: $" + String.format("%.2f", orderTotal) + "\n" +
-               "Thank you for ordering from " + storeName + "!";
+    private void printReceipt() {
+        System.out.println("Order ID: " + orderID);
+        System.out.println("Pizza Ingredients: " + pizzaIngredients);
+        System.out.println("Order Total: $" + orderTotal);
+        System.out.println("Sides: " + sides);
+        System.out.println("Drinks: " + drinks);
     }
 
+    public void showReceipt() {
+        printReceipt();
+    }
+    
     private double calculateOrderTotal() {
         // Assuming a fixed price for simplicity
         double pizzaPrice = 15.0;
@@ -57,6 +119,6 @@ public class SliceOHeaven {
 
         pizzeria.takeOrder(List.of("Cheese", "Tomato", "Basil"), List.of("Garlic Bread"), List.of("Coke"));
         System.out.println(pizzeria.makePizza());
-        System.out.println(pizzeria.printReceipt());
+        System.out.println(pizzeria.showReceipt());
     }
 }
