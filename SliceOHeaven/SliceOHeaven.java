@@ -55,6 +55,7 @@ public class SliceOHeaven {
 
     private void printReceipt() {
         System.out.println("Receipt for Order ID: " + orderID);
+        System.out.println("Pizza Ingredients: " + pizzaIngredients);
         System.out.println("Total Amount: $" + orderTotal);
     }
 
