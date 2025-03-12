@@ -9,7 +9,7 @@ public class SliceOHeaven {
     private String pizzaIngredients;
     private double pizzaPrice;
     private String sides;
-    private String drinks; 
+    private String drinks;
     private String orderID;
     private double orderTotal;
 
@@ -17,6 +17,13 @@ public class SliceOHeaven {
     private final String DEF_PIZZA_INGREDIENTS = "Mozzarella Cheese";
     private final double DEF_ORDER_TOTAL = 15.00;
     private final String BLACKLISTED_NUMBER = "12345678901234";
+
+    private static final double PIZZA_BASE_PRICE = 10.0;
+    private String[] pizzasOrdered = new String[10];
+    private String[] pizzaSizesOrdered = new String[10];
+    private String[] sideDishesOrdered = new String[20];
+    private String[] drinksOrdered = new String[20];
+    private double totalOrderPrice = 0.0;
 
     public SliceOHeaven() {
         this.orderID = DEF_ORDER_ID;
@@ -50,184 +57,255 @@ public class SliceOHeaven {
 
     public void takeOrder() {
         Scanner scanner = new Scanner(System.in);
-        int ingChoice1, ingChoice2, ingChoice3;
-        String ing1 = "", ing2 = "", ing3 = "";
-        int sizeChoice;
-        String pizzaSize = "";
-        String extraCheese;
-        int sideDishChoice;
-        String sideDish = "";
-        int drinkChoice;
-        String drink = "";
-
+        int orderCount = 0;
         while (true) {
-            System.out.println("Please pick any three of the following ingredients:");
-            System.out.println("1. Mushroom\n2. Paprika\n3. Sun-dried tomatoes\n4. Chicken\n5. Pineapple");
-            System.out.print("Enter any three choices (1, 2, 3,…) separated by spaces: ");
-            ingChoice1 = scanner.nextInt();
-            ingChoice2 = scanner.nextInt();
-            ingChoice3 = scanner.nextInt();
+            System.out.println("Welcome to Slice-o-Heaven Pizzeria. Here’s what we serve:");
+            for (PizzaSelection pizza : PizzaSelection.values()) {
+                System.out.println((pizza.ordinal() + 1) + ". " + pizza.toString());
+            }
+            System.out.println("6. Custom Pizza with a maximum of 10 toppings that you choose");
+            System.out.print("Please enter your choice (1 - 6): ");
+            int pizzaChoice = scanner.nextInt();
 
-            if (ingChoice1 < 1 || ingChoice1 > 5 || ingChoice2 < 1 || ingChoice2 > 5 || ingChoice3 < 1 || ingChoice3 > 5) {
-                System.out.println("Invalid choice(s). Please pick only from the given list:");
+            if (pizzaChoice < 1 || pizzaChoice > 6) {
+                System.out.println("Invalid choice. Please try again.");
                 continue;
             }
 
-            ing1 = getIngredient(ingChoice1);
-            ing2 = getIngredient(ingChoice2);
-            ing3 = getIngredient(ingChoice3);
-            break;
-        }
+            if (pizzaChoice == 6) {
+                System.out.println("Please choose up to 10 toppings:");
+                for (PizzaToppings topping : PizzaToppings.values()) {
+                    System.out.println((topping.ordinal() + 1) + ". " + topping.toString());
+                }
+                System.out.print("Enter your choices separated by spaces: ");
+                scanner.nextLine(); // Consume newline
+                String[] toppingsChoices = scanner.nextLine().split(" ");
+                StringBuilder customPizza = new StringBuilder("Custom Pizza with ");
+                double customPrice = PIZZA_BASE_PRICE;
+                for (String choice : toppingsChoices) {
+                    int index = Integer.parseInt(choice) - 1;
+                    customPizza.append(PizzaToppings.values()[index].getTopping()).append(", ");
+                    customPrice += PizzaToppings.values()[index].getToppingPrice();
+                }
+                customPizza.append("for €").append(customPrice);
+                pizzasOrdered[orderCount] = customPizza.toString();
+                totalOrderPrice += customPrice;
+            } else {
+                PizzaSelection selectedPizza = PizzaSelection.values()[pizzaChoice - 1];
+                pizzasOrdered[orderCount] = selectedPizza.toString();
+                totalOrderPrice += selectedPizza.getPrice();
+            }
 
-        while (true) {
             System.out.println("What size should your pizza be?");
-            System.out.println("1. Large\n2. Medium\n3. Small");
-            System.out.print("Enter only one choice (1, 2, or 3): ");
-            sizeChoice = scanner.nextInt();
-
-            if (sizeChoice < 1 || sizeChoice > 3) {
-                System.out.println("Invalid choice. Please enter a valid choice.");
-                continue;
+            for (PizzaSize size : PizzaSize.values()) {
+                System.out.println((size.ordinal() + 1) + ". " + size.toString());
             }
-
-            pizzaSize = getPizzaSize(sizeChoice);
-            break;
-        }
-
-        System.out.print("Do you want extra cheese (Y/N): ");
-        extraCheese = scanner.next();
-
-        while (true) {
-            System.out.println("Following are the side dish that go well with your pizza:");
-            System.out.println("1. Calzone\n2. Garlic bread\n3. Chicken puff\n4. Muffin\n5. Nothing for me");
-            System.out.print("What would you like? Pick one (1, 2, 3,…): ");
-            sideDishChoice = scanner.nextInt();
-
-            if (sideDishChoice < 1 || sideDishChoice > 5) {
-                System.out.println("Invalid choice. Please enter a valid choice.");
-                continue;
-            }
-
-            sideDish = getSideDish(sideDishChoice);
-            break;
-        }
-
-        while (true) {
-            System.out.println("Choose from one of the drinks below. We recommend Coca Cola:");
-            System.out.println("1. Coca Cola\n2. Cold coffee\n3. Cocoa Drink\n4. No drinks for me");
             System.out.print("Enter your choice: ");
-            drinkChoice = scanner.nextInt();
+            int sizeChoice = scanner.nextInt();
+            PizzaSize selectedSize = PizzaSize.values()[sizeChoice - 1];
+            pizzaSizesOrdered[orderCount] = selectedSize.toString();
+            totalOrderPrice += selectedSize.getAddToPizzaPrice();
 
-            if (drinkChoice < 1 || drinkChoice > 4) {
-                System.out.println("Invalid choice. Please enter a valid choice.");
-                continue;
+            System.out.println("Choose a side dish:");
+            for (SideDish side : SideDish.values()) {
+                System.out.println((side.ordinal() + 1) + ". " + side.toString());
             }
+            System.out.print("Enter your choice: ");
+            int sideChoice = scanner.nextInt();
+            SideDish selectedSide = SideDish.values()[sideChoice - 1];
+            sideDishesOrdered[orderCount] = selectedSide.toString();
+            totalOrderPrice += selectedSide.getAddToPizzaPrice();
 
-            drink = getDrink(drinkChoice);
-            break;
+            System.out.println("Choose a drink:");
+            for (Drinks drink : Drinks.values()) {
+                System.out.println((drink.ordinal() + 1) + ". " + drink.toString());
+            }
+            System.out.print("Enter your choice: ");
+            int drinkChoice = scanner.nextInt();
+            Drinks selectedDrink = Drinks.values()[drinkChoice - 1];
+            drinksOrdered[orderCount] = selectedDrink.toString();
+            totalOrderPrice += selectedDrink.getAddToPizzaPrice();
+
+            orderCount++;
+            System.out.print("Do you want to order more? (Y/N): ");
+            String moreOrders = scanner.next();
+            if (moreOrders.equalsIgnoreCase("N")) {
+                break;
+            }
         }
-
-        System.out.println("Order taken successfully!");
-    }
-
-    private String getIngredient(int choice) {
-        switch (choice) {
-            case 1: return "Mushroom";
-            case 2: return "Paprika";
-            case 3: return "Sun-dried tomatoes";
-            case 4: return "Chicken";
-            case 5: return "Pineapple";
-            default: return "";
-        }
-    }
-
-    private String getPizzaSize(int choice) {
-        switch (choice) {
-            case 1: return "Large";
-            case 2: return "Medium";
-            case 3: return "Small";
-            default: return "";
-        }
-    }
-
-    private String getSideDish(int choice) {
-        switch (choice) {
-            case 1: return "Calzone";
-            case 2: return "Garlic bread";
-            case 3: return "Chicken puff";
-            case 4: return "Muffin";
-            case 5: return "Nothing for me";
-            default: return "";
-        }
-    }
-
-    private String getDrink(int choice) {
-        switch (choice) {
-            case 1: return "Coca Cola";
-            case 2: return "Cold coffee";
-            case 3: return "Cocoa Drink";
-            case 4: return "No drinks for me";
-            default: return "";
-        }
-    }
-
-    public void makePizza() {
-        System.out.println("Pizza is being made with ingredients: " + pizzaIngredients);
     }
 
     @Override
     public String toString() {
-        return "Receipt for Order ID: " + orderID + "\n" +
-               "Pizza Ingredients: " + pizzaIngredients + "\n" +
-               "Total Amount: $" + orderTotal;
+        StringBuilder orderDetails = new StringBuilder("Thank you for dining with Slice-o-Heaven Pizzeria. Your order details are as follows:\n");
+        for (int i = 0; i < pizzasOrdered.length && pizzasOrdered[i] != null; i++) {
+            orderDetails.append((i + 1) + ". " + pizzasOrdered[i] + "\n")
+                        .append(pizzaSizesOrdered[i] + "\n")
+                        .append(sideDishesOrdered[i] + "\n")
+                        .append(drinksOrdered[i] + "\n");
+        }
+        orderDetails.append("ORDER TOTAL: €").append(totalOrderPrice);
+        return orderDetails.toString();
     }
 
-    public void processCardPayment(String cardNumber, String expiryDate, int cvv) {
-        Scanner scanner = new Scanner(System.in);
-        while (true) {
-            if (cardNumber.length() != 14) {
-                System.out.println("Invalid card number length. Please enter a 14-digit card number:");
-                cardNumber = scanner.next();
-                continue;
-            }
+    public enum PizzaSelection {
+        PEPPERONI("Pepperoni", "Lots of pepperoni and extra cheese", 18),
+        HAWAIIAN("Hawaiian", "Pineapple, ham, and extra cheese", 22),
+        VEGGIE("Veggie", "Green pepper, onion, tomatoes, mushroom, and black olives", 25),
+        BBQ_CHICKEN("BBQ Chicken", "Chicken in BBQ sauce, bacon, onion, green pepper, and cheddar cheese", 35),
+        EXTRAVAGANZA("Extravaganza", "Pepperoni, ham, Italian sausage, beef, onions, green pepper, mushrooms, black olives, and extra cheese", 45);
 
-            if (cardNumber.equals(BLACKLISTED_NUMBER)) {
-                System.out.println("Card is blacklisted. Please use another card:");
-                cardNumber = scanner.next();
-                continue;
-            }
+        private final String pizzaName;
+        private final String pizzaToppings;
+        private final double price;
 
-            break;
+        PizzaSelection(String pizzaName, String pizzaToppings, double price) {
+            this.pizzaName = pizzaName;
+            this.pizzaToppings = pizzaToppings;
+            this.price = price;
         }
 
-        System.out.println("Card accepted");
-        int firstCardDigit = Integer.parseInt(cardNumber.substring(0, 1));
-        System.out.println("First digit of the card: " + firstCardDigit);
+        public String getPizzaName() {
+            return pizzaName;
+        }
 
-        int lastFourDigits = Integer.parseInt(cardNumber.substring(cardNumber.length() - 4));
-        System.out.println("Last four digits of the card: " + lastFourDigits);
+        public String getPizzaToppings() {
+            return pizzaToppings;
+        }
 
-        String cardNumberToDisplay = cardNumber.charAt(0) +
-                                    "*".repeat(cardNumber.length() - 5) +
-                                    cardNumber.substring(cardNumber.length() - 4);
-        System.out.println("Card number to display: " + cardNumberToDisplay);
+        public double getPrice() {
+            return price;
+        }
+
+        @Override
+        public String toString() {
+            return pizzaName + " Pizza with " + pizzaToppings + ", for €" + price;
+        }
     }
 
-    public void specialOfTheDay(String pizzaOfTheDay, String sideOfTheDay, double specialPrice) {
-        StringBuilder special = new StringBuilder();
-        special.append("Today's Special:\n");
-        special.append("Pizza: ").append(pizzaOfTheDay).append("\n");
-        special.append("Side: ").append(sideOfTheDay).append("\n");
-        special.append("Special Price: $").append(specialPrice).append("\n");
-        System.out.println(special.toString());
+    public enum PizzaToppings {
+        HAM("Ham", 2),
+        PEPPERONI("Pepperoni", 2),
+        BEEF("Beef", 2),
+        CHICKEN("Chicken", 2),
+        SAUSAGE("Sausage", 2),
+        PINEAPPLE("Pineapple", 1),
+        ONION("Onion", 0.5),
+        TOMATOES("Tomatoes", 0.4),
+        GREEN_PEPPER("Green Pepper", 0.5),
+        BLACK_OLIVES("Black Olives", 0.5),
+        SPINACH("Spinach", 0.5),
+        CHEDDAR_CHEESE("Cheddar Cheese", 0.8),
+        MOZZARELLA_CHEESE("Mozzarella Cheese", 0.8),
+        FETA_CHEESE("Feta Cheese", 1),
+        PARMESAN_CHEESE("Parmesan Cheese", 1);
+
+        private final String topping;
+        private final double toppingPrice;
+
+        PizzaToppings(String topping, double toppingPrice) {
+            this.topping = topping;
+            this.toppingPrice = toppingPrice;
+        }
+
+        public String getTopping() {
+            return topping;
+        }
+
+        public double getToppingPrice() {
+            return toppingPrice;
+        }
+
+        @Override
+        public String toString() {
+            return topping + " for €" + toppingPrice;
+        }
     }
 
+    public enum PizzaSize {
+        LARGE("Large", 10),
+        MEDIUM("Medium", 5),
+        SMALL("Small", 0);
+
+        private final String pizzaSize;
+        private final double addToPizzaPrice;
+
+        PizzaSize(String pizzaSize, double addToPizzaPrice) {
+            this.pizzaSize = pizzaSize;
+            this.addToPizzaPrice = addToPizzaPrice;
+        }
+
+        public String getPizzaSize() {
+            return pizzaSize;
+        }
+
+        public double getAddToPizzaPrice() {
+            return addToPizzaPrice;
+        }
+
+        @Override
+        public String toString() {
+            return pizzaSize + ": €" + addToPizzaPrice;
+        }
+    }
+
+    public enum SideDish {
+        CALZONE("Calzone", 15),
+        CHICKEN_PUFF("Chicken Puff", 20),
+        MUFFIN("Muffin", 12),
+        NOTHING("No side dish", 0);
+
+        private final String sideDishName;
+        private final double addToPizzaPrice;
+
+        SideDish(String sideDishName, double addToPizzaPrice) {
+            this.sideDishName = sideDishName;
+            this.addToPizzaPrice = addToPizzaPrice;
+        }
+
+        public String getSideDishName() {
+            return sideDishName;
+        }
+
+        public double getAddToPizzaPrice() {
+            return addToPizzaPrice;
+        }
+
+        @Override
+        public String toString() {
+            return sideDishName + ": €" + addToPizzaPrice;
+        }
+    }
+
+    public enum Drinks {
+        COCA_COLA("Coca Cola", 8),
+        COCOA_DRINK("Cocoa Drink", 10),
+        NOTHING("No drinks", 0);
+
+        private final String drinkName;
+        private final double addToPizzaPrice;
+
+        Drinks(String drinkName, double addToPizzaPrice) {
+            this.drinkName = drinkName;
+            this.addToPizzaPrice = addToPizzaPrice;
+        }
+
+        public String getDrinkName() {
+            return drinkName;
+        }
+
+        public double getAddToPizzaPrice() {
+            return addToPizzaPrice;
+        }
+
+        @Override
+        public String toString() {
+            return drinkName + ": €" + addToPizzaPrice;
+        }
+    }
     public static void main(String[] args) {
         SliceOHeaven pizzaOrder = new SliceOHeaven();
         pizzaOrder.takeOrder();
-        pizzaOrder.makePizza();
         System.out.println(pizzaOrder);
-        pizzaOrder.processCardPayment("12345678901234", "12/25", 123);
-        pizzaOrder.specialOfTheDay("Pepperoni Pizza", "Garlic Bread", 12.99);
     }
 }
